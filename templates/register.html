@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MCQ Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e6eaf4 100%);
+        }
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100px;
+            margin-top: 6px;
+            /* Remove any margin */
+            margin-left: 6px;
+            padding: 0;
+            /* Remove any padding */
+        }
+        .register-container {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .input-focus:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+        <div class="register-container rounded-xl shadow-2xl overflow-hidden">
+            <!-- Home Button -->
+            <a href="/" class="home-button inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 hover:bg-green-100 transition-colors">
+                <i data-feather="home" class="w-5 h-5 text-green-600"></i>
+                <span class="text-green-600 font-medium">Back to Home</span>
+            </a>
+            <div class="px-8 pt-12 pb-8 bg-white bg-opacity-90">
+                <div class="text-center mb-8">
+                    <div class="flex justify-center mb-6">
+                        <div class="bg-green-100 rounded-full p-4">
+                            <i data-feather="user-plus" class="text-green-600 w-12 h-12"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">Create Your Account</h1>
+                    <p class="text-gray-600 mt-2">Join MCQ Generator Platform</p>
+                </div>
+
+                <form action="{{ url_for('register') }}" method="post" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+                            Full Name
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i data-feather="user" class="text-gray-400 w-5 h-5"></i>
+                            </span>
+                            <input
+                                class="input-focus w-full py-2 px-10 text-gray-700 border rounded-lg focus:outline-none focus:border-green-500 transition duration-300"
+                                id="name"
+                                type="text"
+                                name="name"
+                                placeholder="Enter your full name"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                            Email Address
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i data-feather="mail" class="text-gray-400 w-5 h-5"></i>
+                            </span>
+                            <input
+                                class="input-focus w-full py-2 px-10 text-gray-700 border rounded-lg focus:outline-none focus:border-green-500 transition duration-300"
+                                id="email"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i data-feather="lock" class="text-gray-400 w-5 h-5"></i>
+                            </span>
+                            <input
+                                class="input-focus w-full py-2 px-10 text-gray-700 border rounded-lg focus:outline-none focus:border-green-500 transition duration-300"
+                                id="password"
+                                type="password"
+                                name="password"
+                                placeholder="Create a strong password"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="role">
+                            Select Role
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i data-feather="briefcase" class="text-gray-400 w-5 h-5"></i>
+                            </span>
+                            <select
+                                class="input-focus w-full py-2 px-10 text-gray-700 border rounded-lg focus:outline-none focus:border-green-500 transition duration-300"
+                                id="role"
+                                name="role"
+                                required
+                            >
+                                <option value="">Select Your Role</option>
+                                <option value="trainer">Trainer</option>
+                                <option value="trainee">Trainee</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button
+                            class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-300 transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                            type="submit"
+                        >
+                            Register
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-gray-100 text-center py-4">
+                <p class="text-gray-600 text-sm">
+                    Already have an account?
+                    <a href="{{ url_for('login') }}" class="text-green-500 hover:text-green-700">
+                        Sign In
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-500">
+            <p class="text-sm">&copy; 2025 Yash Technologies Pvt. Ltd. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
+
+

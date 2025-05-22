@@ -1,0 +1,137 @@
+<!-- templates/results.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+    <title>Test Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100px;
+            margin-top: 6px;
+            /* Remove any margin */
+            margin-left: 6px;
+            padding: 0;
+            /* Remove any padding */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Test Results</h1>
+
+        <!-- Latest Test Results -->
+        {% if test_details %}
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <div class="border-b pb-4 mb-4">
+                <h2 class="text-xl font-semibold mb-4">Latest Attempt Score</h2>
+                <p class="text-4xl font-bold mb-4">{{ test_details.result.score | int }}%</p>
+                <div class="mb-4">
+                    <p class="text-lg">Qualification Mark: {{ qualification_marks }}%</p>
+                    <p class="text-lg">Correct Answers: {{ test_details.num_correct }} / {{ test_details.total_questions }}</p>
+                    {% if test_details.passed %}
+                    <p class="text-green-500 font-semibold mt-2">Status: Passed</p>
+                    {% else %}
+                    <p class="text-red-500 font-semibold mt-2">Status: Failed</p>
+                    {% endif %}
+                </div>
+                <p class="text-sm text-gray-600">Submitted on: {{ test_details.result.completed_at }}</p>
+            </div>
+
+            <!-- Question Review -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-4">Question Review</h3>
+                {% for question in test_details.questions %}
+                <div class="mb-6 p-4 {% if question.response == question.correct_answer %}bg-green-50{% else %}bg-red-50{% endif %} rounded-lg">
+                    <p class="font-medium mb-3">{{ loop.index }}. {{ question.question_text }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 ml-4">
+                        <div class="{% if 'A' == question.correct_answer %}text-green-600 font-medium{% elif 'A' == question.response %}text-red-600{% endif %}">
+                            A. {{ question.option_a }}
+                        </div>
+                        <div class="{% if 'B' == question.correct_answer %}text-green-600 font-medium{% elif 'B' == question.response %}text-red-600{% endif %}">
+                            B. {{ question.option_b }}
+                        </div>
+                        <div class="{% if 'C' == question.correct_answer %}text-green-600 font-medium{% elif 'C' == question.response %}text-red-600{% endif %}">
+                            C. {{ question.option_c }}
+                        </div>
+                        <div class="{% if 'D' == question.correct_answer %}text-green-600 font-medium{% elif 'D' == question.response %}text-red-600{% endif %}">
+                            D. {{ question.option_d }}
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm">
+                        <span class="font-medium">Your answer:</span>
+                        {% if question.response %}
+                            {{ question.response }}
+                            {% if question.response == question.correct_answer %}
+                            <span class="text-green-600">✓</span>
+                            {% else %}
+                            <span class="text-red-600">✗</span>
+                            {% endif %}
+                        {% else %}
+                            Not answered
+                        {% endif %}
+                        <span class="ml-4 font-medium">Correct answer: {{ question.correct_answer }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Previous Attempts -->
+        {% if previous_attempts and previous_attempts|length > 1 %}
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Previous Attempts</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempt</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for attempt in previous_attempts %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ loop.index }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ attempt.score | int }}%</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ attempt.completed_at }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if attempt.score >= qualification_marks %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Passed</span>
+                                {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Failed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Navigation -->
+        <div class="mt-8 flex space-x-4">
+            <a href="/trainee/dashboard" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Back to Dashboard
+            </a>
+            <!-- {% if test_details and not test_details.passed %}
+            <a href="/trainee/test/{{ assignment.session_id }}" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition duration-300">
+                Retry Test
+            </a>
+            {% endif %} -->
+        </div>
+    </div>
+</body>
+</html>

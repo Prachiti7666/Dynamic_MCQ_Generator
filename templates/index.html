@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Generator Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            min-height: 100vh;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            max-width: 100px;
+        }
+        
+        .hero {
+            background-color: white;
+            padding: 6rem 1.5rem;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .content {
+            text-align: center;
+            flex: 1;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 1.5rem;
+        }
+
+        .title span {
+            color: #2563eb;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #4b5563;
+            margin-bottom: 2rem;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #eff6ff;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: scale(1.05);
+        }
+
+        .feature-card.blue {
+            background-color: #dbeafe;
+        }
+
+        .feature-card.green {
+            background-color: #dcfce7;
+        }
+
+        .feature-card.purple {
+            background-color: #f3e8ff;
+        }
+
+        .feature-card.orange {
+            background-color: #ffedd5;
+        }
+
+        .feature-icon {
+            width: 2rem;
+            height: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .features-section {
+            background-color: white;
+            padding: 4rem 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .feature-box {
+            padding: 1.5rem;
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .feature-box:hover {
+            background-color: #eff6ff;
+        }
+
+        .feature-box-icon {
+            width: 3rem;
+            height: 3rem;
+            background-color: #dbeafe;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-box-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-box-description {
+            color: #4b5563;
+        }
+
+        footer {
+            background-color: #f9fafb;
+            padding: 2rem;
+            text-align: center;
+            color: #4b5563;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 50;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flash-messages {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 100;
+            max-width: 24rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-success {
+            background-color: #def7ec;
+            border: 1px solid #31c48d;
+            color: #03543f;
+        }
+
+        .alert-error {
+            background-color: #fde8e8;
+            border: 1px solid #f98080;
+            color: #9b1c1c;
+        }
+
+        .alert-info {
+            background-color: #e1effe;
+            border: 1px solid #3f83f8;
+            color: #1e429f;
+        }
+
+        .alert-warning {
+            background-color: #feecdc;
+            border: 1px solid #ff5a1f;
+            color: #9c4221;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        @media (min-width: 768px) {
+            .flex-container {
+                flex-direction: row;
+            }
+
+            .content {
+                text-align: left;
+            }
+
+            .button-group {
+                flex-direction: row;
+                justify-content: flex-start;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo">
+    </div>
+    
+    <div class="flash-messages" id="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        <div class="flex items-center">
+                            {% if category == 'success-register' %}
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            {% elif category == 'error' %}
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            {% elif category == 'info' %}
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% elif category == 'warning' %}
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                        <button onclick="closeAlert(this.parentElement)" class="ml-4 text-gray-500 hover:text-gray-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="flex-container">
+                <!-- Left side - Content -->
+                <div class="content">
+                    <h1 class="title">
+                        <span>MCQ</span> Generator Platform
+                    </h1>
+                    <p class="subtitle">
+                        Transform your content into interactive learning experiences with AI-powered question generation
+                    </p>
+                    <div class="button-group">
+                        <a href="/login" class="btn btn-primary">
+                            Login
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </a>
+                        <a href="/register" class="btn btn-secondary">
+                            Sign Up
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </a>
+                        <button class="btn btn-secondary" onclick="toggleModal()">
+                            Bulk Register
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right side - Feature cards -->
+                <div class="feature-grid">
+                    <div class="feature-card blue">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        <h3 class="feature-title">AI-Powered MCQ</h3>
+                    </div>
+                    <div class="feature-card green">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <h3 class="feature-title">User Management</h3>
+                    </div>
+                    <div class="feature-card purple">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="8" r="7"></circle>
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                        </svg>
+                        <h3 class="feature-title">Learning Insights</h3>
+                    </div>
+                    <div class="feature-card orange">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="20" x2="12" y2="10"></line>
+                            <line x1="18" y1="20" x2="18" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="16"></line>
+                        </svg>
+                        <h3 class="feature-title">Performance Hub</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Platform Features</h2>
+            <div class="features-grid">
+                <div class="feature-box">
+                    <div class="feature-box-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-box-title">Document Processing</h3>
+                    <p class="feature-box-description">Upload documents in various formats including PDF, DOCX, PPTX,
+                        Video and Audio for automatic question generation</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-box-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-box-title">Secure Testing</h3>
+                    <p class="feature-box-description">Conduct secure assessments with randomized questions and detailed
+                        performance analytics</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-box-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                            <line x1="12" y1="20" x2="12" y2="10"></line>
+                            <line x1="18" y1="20" x2="18" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h3 class="feature-box-title">Progress Tracking</h3>
+                    <p class="feature-box-description">Monitor trainee progress with detailed analytics and exportable
+                        reports</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bulk Register Modal -->
+    <div id="bulk-register-modal" class="modal">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-1/3">
+            <button onclick="toggleModal()" class="float-right text-gray-500 hover:text-gray-700">✕</button>
+            <h2 class="text-xl font-bold mb-4 text-gray-700">Upload Trainee List</h2>
+            <form id="bulkRegisterForm" action="{{ url_for('bulk_register') }}" method="post" enctype="multipart/form-data">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="trainee-list">Upload Trainee List</label>
+                <div class="relative mb-4">
+                    <i data-feather="upload" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
+                    <input type="file" name="trainee_list" id="trainee-list" accept=".xlsx,.xls"
+                        class="w-full py-2 px-10 border rounded-lg focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="text-sm font-bold text-gray-700 mb-2">File Template</h4>
+                    <div class="mb-3 overflow-x-auto">
+                        <table class="min-w-full bg-white border">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left text-sm">Name</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left text-sm">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2 border text-sm text-gray-600">Trainee1</td>
+                                    <td class="px-4 py-2 border text-sm text-gray-600">trainee1@example.com</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 border text-sm text-gray-600">Trainee2</td>
+                                    <td class="px-4 py-2 border text-sm text-gray-600">trainee2@example.com</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="{{ url_for('static', filename='trainee_template.xlsx') }}"
+                            class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                            <i data-feather="download" class="w-4 h-4 mr-1"></i>
+                            Download Excel Template
+                        </a>
+                    </div>
+                    <div class="mt-3 text-sm text-gray-600">
+                        <p class="font-medium">Instructions:</p>
+                        <ul class="list-disc list-inside ml-2">
+                            <li>Download the template in your preferred format (Excel)</li>
+                            <li>Enter trainee email addresses in the 'Email' column and name in 'Name' column</li>
+                            <li>Save the file and upload it using the form above</li>
+                            <li>Make sure all email addresses are unique</li>
+                        </ul>
+                    </div>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Submit</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="loader" class="hidden fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+        <div class="loader"></div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Yash Technologies Pvt. Ltd. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            setupFlashMessages();
+            setupBulkRegisterForm();
+        });
+        
+        function toggleModal() {
+            const modal = document.getElementById('bulk-register-modal');
+            modal.classList.toggle('show');
+        }
+        
+        function closeAlert(element) {
+            element.classList.add('fade-out');
+            setTimeout(() => {
+                element.remove();
+            }, 300);
+        }
+        
+        function setupFlashMessages() {
+            const flashMessages = document.querySelectorAll('.alert');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    if (message) {
+                        message.classList.add('fade-out');
+                        setTimeout(() => {
+                            message.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            });
+        }
+        
+        function setupBulkRegisterForm() {
+            const bulkRegisterForm = document.getElementById('bulkRegisterForm');
+            const loader = document.getElementById('loader');
+            
+            if (bulkRegisterForm) {
+                bulkRegisterForm.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+                    loader.classList.remove('hidden');
+                    
+                    try {
+                        const formData = new FormData(bulkRegisterForm);
+                        const response = await fetch(bulkRegisterForm.action, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        // Get the content type header
+                        const contentType = response.headers.get('content-type');
+
+                        // If response is not ok, handle the error
+                        if (!response.ok) {
+                            let errorMessage;
+                            // Try to parse error message from JSON response
+                            if (contentType && contentType.includes('application/json')) {
+                                const errorData = await response.json();
+                                errorMessage = errorData.error;
+                            } else {
+                                // Fallback error message if JSON parsing fails
+                                errorMessage = 'Failed to process the request';
+                            }
+                            throw new Error(errorMessage);
+                        }
+
+                        // Check if the response is an Excel file
+                        if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+                            throw new Error('Invalid response format from server');
+                        }
+
+                        // If we get here, we have a valid Excel file response
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        const now = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 15);
+                        a.download = `trainee_list_${now}.xlsx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+
+                        // Show success message and close modal
+                        showAlert('File downloaded successfully!', 'success');
+                        toggleModal();
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showAlert(error.message || 'An error occurred while processing your request', 'error');
+                    } finally {
+                        loader.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        function showAlert(message, category = 'info') {
+            const flashMessages = document.getElementById('flash-messages');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${category}`;
+            alertDiv.role = 'alert';
+            
+            const icons = {
+                'success': '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+                'error': '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>',
+                'info': '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+                'warning': '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
+            };
+            
+            alertDiv.innerHTML = `
+                <div class="flex items-center">
+                    ${icons[category] || icons.info}
+                    ${message}
+                </div>
+                <button onclick="closeAlert(this.parentElement)" class="ml-4 text-gray-500 hover:text-gray-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            
+            flashMessages.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv) {
+                    alertDiv.classList.add('fade-out');
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 300);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

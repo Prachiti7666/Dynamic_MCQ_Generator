@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+    <title>Trainee Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100px;
+            margin-top: 6px;
+            /* Remove any margin */
+            margin-left: 6px;
+            padding: 0;
+            /* Remove any padding */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">Trainee Dashboard</h1>
+        <div class="flex justify-end mb-6">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center">
+                <i data-feather="log-out" class="mr-2 w-5 h-5"></i>
+                <a href="{{url_for('logout')}}">Logout</a>
+            </button>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Available Tests</h2>
+            <div class="space-y-6">
+                {% for session in sessions %}
+                <div class="border border-gray-200 p-6 rounded-lg hover:shadow-md transition-shadow duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700">{{ session.title }}</h3>
+                            <p class="text-gray-600 mt-2">Created: {{ session.test_created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-gray-600">Total Attempts: {{ session.attempt_count }}</p>
+                            {% if session.best_score %}
+                                <p class="text-green-600 font-semibold">Best Score: {{ "%.2f"|format(session.best_score) }}%</p>
+                            {% endif %}
+                        </div>
+                    </div>
+        
+                    <div class="mb-4">
+                        {% if session.documents %}
+                            <div class="space-y-2">
+                                {% for doc_url, doc_name, doc_id in session.documents %}
+                                    <div>
+                                        <a href="{{ doc_url }}" target="_blank"
+                                           class="text-blue-500 hover:text-blue-700 transition-colors duration-300">
+                                            {{ doc_name }}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500">No training materials available</p>
+                        {% endif %}
+                    </div>
+        
+                    {% if session.attempts %}
+                    <div class="mb-4">
+                        <button onclick="toggleAttempts('attempts-{{ session.session_id }}')"
+                            class="flex items-center text-blue-600 hover:text-blue-800 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            View All Attempts ({{ session.attempts|length }})
+                        </button>
+                        
+                        <div id="attempts-{{ session.session_id }}" class="hidden mt-2 space-y-4">
+                            {% for attempt in session.attempts %}
+                            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+                                <div class="flex justify-between">
+                                    <h4 class="font-semibold text-gray-700">Attempt #{{ loop.index }}</h4>
+                                    <span class="text-gray-600">{{ attempt.completed_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                                </div>
+                                <div class="mt-2">
+                                    <p class="text-gray-600">Score: {{ "%.2f"|format(attempt.score) }}%</p>
+                                    {% if attempt.passed %}
+                                        <p class="text-green-600 font-semibold">Passed</p>
+                                    {% else %}
+                                        <p class="text-red-600 font-semibold">Not Passed</p>
+                                    {% endif %}
+                                    <a href="{{ url_for('view_results', session_id=session.session_id, result_id=attempt.id) }}"
+                                       class="text-blue-500 hover:text-blue-700 transition-colors duration-300 inline-block mt-1">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+        
+                    <div class="flex justify-between items-center">
+                        <a href="{{ url_for('take_test', session_id=session.session_id) }}"
+                           class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-300">
+                            {% if session.attempt_count > 0 %}Retake Test{% else %}Take Test{% endif %}
+                        </a>
+                        {% if session.qualification_marks %}
+                            <p class="text-gray-600">Passing Score: {{ session.qualification_marks }}%</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+<script>
+    feather.replace();
+    function toggleAttempts(id) {
+    const element = document.getElementById(id);
+    if (element.classList.contains('hidden')) {
+        element.classList.remove('hidden');
+    } else {
+        element.classList.add('hidden');
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+    <title>Take Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100px;
+            margin-top: 6px;
+            /* Remove any margin */
+            margin-left: 6px;
+            padding: 0;
+            /* Remove any padding */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">{{ title }} - Test</h1>
+
+        <form id="testForm" action="/trainee/submit_test" method="post" class="space-y-8">
+            <input type="hidden" name="session_id" value="{{ session_id }}">
+
+            {% for question in questions %}
+    {% set question_index = loop.index0 %}
+    <div class="question bg-white p-6 rounded-lg shadow" style="display: none;">
+        <h2 class="text-xl font-semibold mb-4">Question {{ loop.index }} of {{num_questions | int}}</h2>
+        <p class="mb-4">{{ question.text }}</p>
+
+        <div class="space-y-2">
+            {% for option in question.options %}
+            <label class="block">
+                <input type="radio" name="question_{{ question_index }}" value="{{ option.id }}" required>
+                <span class="ml-2">{{ option.text }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+            <div class="flex justify-between">
+                <button type="button" id="prevBtn" onclick="previousQuestion()" class="bg-gray-500 text-white px-4 py-2 rounded">Previous</button>
+                <button type="button" id="nextBtn" onclick="nextQuestion()" class="bg-gray-500 text-white px-4 py-2 rounded">Next</button>
+                <button type="submit" id="submitBtn" class="bg-green-500 text-white px-4 py-2 rounded">Submit Test</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        const questions = document.querySelectorAll('.question');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showQuestion(index) {
+            questions.forEach((q, i) => {
+                q.style.display = i === index ? 'block' : 'none';
+            });
+
+            prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
+            nextBtn.style.display = index === questions.length - 1 ? 'none' : 'inline-block';
+            submitBtn.style.display = index === questions.length - 1 ? 'inline-block' : 'none';
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        // Show first question initially
+        showQuestion(0);
+    </script>
+</body>
+</html>

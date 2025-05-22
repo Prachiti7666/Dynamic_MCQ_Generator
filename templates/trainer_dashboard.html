@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Dashboard - MCQ Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e6eaf4 100%);
+        }
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100px;
+            margin-top: 6px;
+            /* Remove any margin */
+            margin-left: 6px;
+            padding: 0;
+            /* Remove any padding */
+        }
+        .dashboard-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .file-input {
+            border: 2px dashed #3b82f6;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-input:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .uploading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen py-12">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul id="flash-messages" style="display: none;">
+        {% for category, message in messages %}
+        <li data-category="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <div class="container mx-auto px-4">
+        <header class="mb-12">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-800">Trainer Dashboard</h1>
+                    <p class="text-gray-600 mt-2">Create and Manage Training Sessions</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center">
+                        <i data-feather="log-out" class="mr-2 w-5 h-5"></i>
+                        <a href="{{url_for('logout')}}">
+                            Logout </a>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Create New Training Card -->
+            <div class="dashboard-card rounded-xl shadow-lg p-8">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-100 rounded-full p-3 mr-4">
+                        <i data-feather="upload-cloud" class="text-blue-600 w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-800">Create New Training</h2>
+                </div>
+
+                <!-- <form id="uploadForm" action="/trainer/upload" method="post" enctype="multipart/form-data"
+                    class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="options">
+                            Select Option
+                        </label>
+                        <select id="options" onchange="toggleFields()">
+                            <option value="">Select an option</option>
+                            <option value="document">Upload Document</option>
+                            <option value="video">Upload Video</option>
+                            <option value="audio">Upload Audio</option>
+                            <option value="web_url">Enter Web URL</option>
+                        </select>
+                    </div>
+
+                    <div id="document" class="hidden">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="document">
+                            Upload Document
+                        </label>
+                        <div class="relative">
+                            <input type="file" name="document" id="document" accept=".pdf,.docx,.pptx,.ppt"
+                                class="file-input w-full p-3 border-2 border-dashed rounded-lg text-gray-600 focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div id="video" class="hidden">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="video">
+                            Upload Video
+                        </label>
+                        <div class="relative">
+                            <input type="file" name="video" id="video" accept=".mp4,.avi,.mov"
+                                class="file-input w-full p-3 border-2 border-dashed rounded-lg text-gray-600 focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div id="audio" class="hidden">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="audio">
+                            Upload Audio
+                        </label>
+                        <div class="relative">
+                            <input type="file" name="audio" id="audio" accept=".mp3"
+                                class="file-input w-full p-3 border-2 border-dashed rounded-lg text-gray-600 focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div id="web_url" class="hidden">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="web_url">
+                            Enter Web URL
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="web_url" id="web_url" placeholder="Enter web URL"
+                                class="w-full py-2 px-3 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="web_url">
+                            Enter training title
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="title" id="title" placeholder="Enter training title"
+                                class="w-full py-2 px-3 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="num-questions">
+                                Number of Questions
+                            </label>
+                            <input type="number" name="num_questions" id="num-questions" required min="1"
+                                placeholder="e.g., 10"
+                                class="w-full py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="qualification-marks">
+                                Qualification Marks (%)
+                            </label>
+                            <input type="number" name="qualification_marks" id="qualification-marks" required min="0"
+                                max="100" placeholder="e.g., 60"
+                                class="w-full py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center">
+                        <i data-feather="check-circle" class="mr-2 w-5 h-5"></i>
+                        Create Training
+                    </button>
+
+                </form> -->
+                <form id="uploadForm" action="/trainer/upload" method="post" enctype="multipart/form-data" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                            Enter training title
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="title" id="title" placeholder="Enter training title"
+                                class="w-full py-2 px-3 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                
+                    <!-- <div id="content-sources" class="space-y-4">
+                         Template for content source 
+                        <div class="content-source border p-4 rounded-lg">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">
+                                    Select Content Type
+                                </label>
+                                <select class="content-type w-full py-2 px-3 border rounded-lg" onchange="toggleContentFields(this)">
+                                    <option value="">Select an option</option>
+                                    <option value="document">Upload Document</option>
+                                    <option value="video">Upload Video</option>
+                                    <option value="audio">Upload Audio</option>
+                                    <option value="web_url">Enter Web URL</option>
+                                </select>
+                            </div>
+                
+                            <div class="content-fields mt-4">
+                                <div class="document-field hidden">
+                                    <input type="file" name="documents[]" accept=".pdf,.docx,.pptx,.ppt"
+                                        class="w-full p-3 border-2 border-dashed rounded-lg">
+                                </div>
+                                <div class="video-field hidden">
+                                    <input type="file" name="videos[]" accept=".mp4,.avi,.mov"
+                                        class="w-full p-3 border-2 border-dashed rounded-lg">
+                                </div>
+                                <div class="audio-field hidden">
+                                    <input type="file" name="audios[]" accept=".mp3"
+                                        class="w-full p-3 border-2 border-dashed rounded-lg">
+                                </div>
+                                <div class="web_url-field hidden">
+                                    <input type="text" name="web_urls[]" placeholder="Enter web URL"
+                                        class="w-full py-2 px-3 border rounded-lg">
+                                </div>
+                            </div>
+                
+                            <button type="button" onclick="removeContentSource(this)" 
+                                class="mt-2 text-red-500 hover:text-red-700">
+                                Remove Source
+                            </button>
+                        </div>
+                    </div> -->
+
+                    <div id="content-sources" class="space-y-4">
+                        <!-- Template for content source -->
+                        <div class="content-source border p-4 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex-grow">
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                                        Select Content Type
+                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <select class="content-type w-full py-2 px-3 border rounded-lg" onchange="toggleContentFields(this)">
+                                            <option value="">Select an option</option>
+                                            <option value="document">Upload Document</option>
+                                            <option value="video">Upload Video</option>
+                                            <option value="audio">Upload Audio</option>
+                                            <option value="web_url">Enter Web URL</option>
+                                        </select>
+                                        <button type="button" onclick="removeContentSource(this)" 
+                                            class="text-red-500 hover:text-red-700">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                            <div class="content-fields mt-4">
+                                <div class="document-field hidden">
+                                    <input type="file" name="documents[]" accept=".pdf,.docx,.pptx,.ppt"
+                                        class="w-full p-3 border-2 border-dashed rounded-lg">
+                                </div>
+                                <div class="video-field hidden">
+                                    <input type="file" name="videos[]" accept=".mp4,.avi,.mov"
+                                        class="w-full p-3 border-2 border-dashed rounded-lg">
+                                </div>
+                                <div class="audio-field hidden">
+                                    <input type="file" name="audios[]" accept=".mp3"
+                                        class="w-full p-3 border-2 border-dashed rounded-lg">
+                                </div>
+                                <div class="web_url-field hidden">
+                                    <input type="text" name="web_urls[]" placeholder="Enter web URL"
+                                        class="w-full py-2 px-3 border rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <button type="button" onclick="addContentSource()"
+                        class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+                        Add Another Content Source
+                    </button>
+                
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="num-questions">
+                                Number of Questions
+                            </label>
+                            <input type="number" name="num_questions" required min="1" placeholder="e.g., 10"
+                                class="w-full py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="qualification-marks">
+                                Qualification Marks (%)
+                            </label>
+                            <input type="number" name="qualification_marks" required min="0" max="100" 
+                                placeholder="e.g., 60" class="w-full py-2 border rounded-lg">
+                        </div>
+                    </div>
+                
+                    <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600">
+                        Create Training
+                    </button>
+                </form>
+                <div id="loader"
+                    class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+                    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
+                        <p class="text-gray-700 text-lg">Processing file...</p>
+                        <p class="text-gray-500 text-sm mt-2">This may take a few moments</p>
+                    </div>
+                </div>
+                
+
+
+
+            </div>
+
+            <div class="dashboard-card rounded-xl shadow-lg p-8">
+                <div class="flex items-center mb-6">
+                    <div class="bg-green-100 rounded-full p-3 mr-4">
+                        <i data-feather="file-text" class="text-green-600 w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-800">Previous Training Results</h2>
+                </div>
+
+                {% if training_sessions %}
+                <div class="space-y-6">
+                    {% for session in training_sessions %}
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <!-- <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-lg">{{ session.title }}</h3>
+                                <p class="text-sm text-gray-600">Created on: {{ session.created_at.strftime('%Y-%m-%d
+                                    %H:%M') }}</p>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ session.total_trainees }} Trainees
+                            </span>
+                            <button onclick="showAssignModal('{{ session.id }}')"
+                                class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg text-xs flex items-center">
+                                <i data-feather="user-plus" class="w-3 h-3 mr-1"></i>
+                                Assign Trainees
+                            </button>
+                            {% if session.total_trainees>10 %}
+                            <button
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 rounded-lg text-xs flex items-center">
+                                <a href="{{ url_for('download_trainee_details', session_id=session.id) }}"
+                                    class="text-white no-underline flex items-center">
+                                    <i data-feather="download" class="w-3 h-3 mr-1"></i>
+                                    Download
+                                </a>
+                            </button>
+                            {% endif %}
+                        </div> -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-lg">{{ session.title }}</h3>
+                                <p class="text-sm text-gray-600">Created on: {{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                    {{ session.total_trainees }} Trainees
+                                </span>
+                                <div class="flex space-x-2">
+                                    <button onclick="showAssignModal('{{ session.id }}')" 
+                                        class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg text-xs flex items-center">
+                                        <i data-feather="user-plus" class="w-3 h-3 mr-1"></i>
+                                        Assign Trainees
+                                    </button>
+                                    {% if session.total_trainees > 10 %}
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-lg text-xs flex items-center">
+                                        <a href="{{ url_for('download_trainee_details', session_id=session.id) }}" 
+                                           class="text-white no-underline flex items-center">
+                                            <i data-feather="download" class="w-3 h-3 mr-1"></i>
+                                            Download
+                                        </a>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600">Questions</p>
+                                <p class="font-semibold">{{ session.num_questions }}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600">Pass Mark</p>
+                                <p class="font-semibold">{{ session.qualification_marks }}%</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600">Attempted</p>
+                                <p class="font-semibold">{{ session.attempted_trainees }}/{{ session.total_trainees }}
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600">Passed</p>
+                                <p class="font-semibold">{{ session.passed_count }}/{{ session.total_trainees }}</p>
+                            </div>
+                        </div>
+                        {% if session.total_trainees<=10 %} <!-- Trainee Details Collapsible -->
+                            <div class="mt-4">
+                                <button onclick="toggleTrainees('trainees-{{ session.id }}')"
+                                    class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                    <i data-feather="chevron-down" class="w-4 h-4 mr-1"></i>
+                                    Show Trainee Details
+                                </button>
+                                <div id="trainees-{{ session.id }}" class="hidden mt-4">
+                                    <div class="overflow-x-auto">
+                                        <!-- <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th
+                                                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Trainee</th>
+                                                    <th
+                                                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Best Score</th>
+                                                    <th
+                                                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Attempts</th>
+                                                    <th
+                                                        class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                {% for trainee in session.trainees %}
+                                                <tr>
+                                                    <td class="px-4 py-2">
+                                                        <div class="text-sm font-medium text-gray-900">{{
+                                                            trainee.trainee_name }}</div>
+                                                        <div class="text-sm text-gray-500">{{ trainee.trainee_email }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm">
+                                                        {{ "%.1f"|format(trainee.best_score or 0) }}%
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm">{{ trainee.attempt_count }}</td>
+                                                    <td class="px-4 py-2">
+                                                        {% if trainee.has_passed %}
+                                                        <span
+                                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Passed
+                                                        </span>
+                                                        {% else %}
+                                                        <span
+                                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                            Not Passed
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="px-4 py-2">
+                                                        {% if trainee.assignment_id and trainee.result_id %}
+                                                        <a href="{{ url_for('view_attempt', assignment_id=trainee.assignment_id, result_id=trainee.result_id) }}"
+                                                            class="text-blue-600 hover:text-blue-800">View Attempt</a>
+                                                        {% else %}
+                                                        <span class="text-gray-500">No attempts available</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table> -->
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Trainee</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Latest Score</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Last Attempt</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Total Attempts</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Status</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                {% for trainee in session.trainees %}
+                                                <tr>
+                                                    <td class="px-4 py-2">
+                                                        <div class="text-sm font-medium text-gray-900">{{ trainee.trainee_name }}</div>
+                                                        <div class="text-sm text-gray-500">{{ trainee.trainee_email }}</div>
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm">
+                                                        {{ "%.1f"|format(trainee.latest_score or 0) }}%
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm">
+                                                        {% if trainee.last_attempt %}
+                                                        {{ trainee.last_attempt.strftime('%Y-%m-%d %H:%M') }}
+                                                        {% else %}
+                                                        No attempt
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm">{{ trainee.attempt_count }}</td>
+                                                    <td class="px-4 py-2">
+                                                        {% if trainee.has_passed %}
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Passed
+                                                        </span>
+                                                        {% else %}
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                            Not Passed
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="px-4 py-2">
+                                                        {% if trainee.assignment_id and trainee.result_id %}
+                                                        <a href="{{ url_for('view_attempt', assignment_id=trainee.assignment_id, result_id=trainee.result_id) }}"
+                                                            class="text-blue-600 hover:text-blue-800">View Latest Attempt</a>
+                                                        {% else %}
+                                                        <span class="text-gray-500">No attempts available</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-600">
+                    <i data-feather="inbox" class="w-12 h-12 mx-auto mb-4"></i>
+                    <p>No training sessions created yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="assignTraineesModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-800">Assign Trainees</h3>
+                    <button onclick="closeAssignModal()" class="text-gray-500 hover:text-gray-700">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <form id="assignTraineesForm" class="space-y-6">
+                    <input type="hidden" id="session_id" name="session_id">
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="assign-input-method">
+                            Input Method
+                        </label>
+                        <select id="assign-input-method"
+                            class="w-full py-2 px-3 border rounded-lg focus:outline-none focus:border-blue-500"
+                            onchange="toggleAssignInputMethod(this.value)">
+                            <option value="text">Text Input</option>
+                            <option value="file">File Upload</option>
+                        </select>
+                    </div>
+
+                    <div id="assign-text-input-section">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="assign-trainee-emails">
+                            Trainee Emails
+                        </label>
+                        <div class="relative">
+                            <i data-feather="mail" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
+                            <input type="text" name="trainee_emails" id="assign-trainee-emails"
+                                placeholder="Enter emails separated by commas"
+                                class="w-full py-2 px-10 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div id="assign-file-input-section" class="hidden">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="assign-trainee-list">
+                            Upload Trainee List
+                        </label>
+                        <div class="relative">
+                            <i data-feather="upload" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
+                            <input type="file" name="trainee_list" id="assign-trainee-list" accept=".xlsx,.xls,.csv"
+                                class="w-full py-2 px-10 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+
+                        <!-- Template info -->
+                        <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600">File should contain an 'Email' column with trainee email
+                                addresses</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="closeAssignModal()"
+                            class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            Assign Trainees
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="assignmentLoader"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-700 text-lg">Assigning trainees...</p>
+            <p class="text-gray-500 text-sm mt-2">Please wait</p>
+        </div>
+    </div>
+    <script src="/static/training-system.js"></script>
+</body>
+
+</html>

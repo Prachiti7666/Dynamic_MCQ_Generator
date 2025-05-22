@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Yash_Logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Attempt - Q&A Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e6eaf4 100%);
+        }
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100px;
+            margin-top: 6px;
+            /* Remove any margin */
+            margin-left: 6px;
+            padding: 0;
+            /* Remove any padding */
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12">
+    <div class="container mx-auto px-4">
+        <header class="mb-12">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-800">View Attempt</h1>
+                    <p class="text-gray-600 mt-2">Details of the trainee's attempt</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center">
+                        <i data-feather="log-out" class="mr-2 w-5 h-5"></i>
+                        <a href="{{ url_for('trainer_dashboard') }}">Back to Dashboard</a>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Trainee Information</h2>
+            <div class="mb-6">
+                <p class="text-lg font-medium">Name: <span class="font-normal">{{ assignment.trainee_name }}</span></p>
+                <p class="text-lg font-medium">Email: <span class="font-normal">{{ assignment.trainee_email }}</span></p>
+                <p class="text-lg font-medium">Qualification Marks: <span class="font-normal">{{ assignment.qualification_marks }}%</span></p>
+                <p class="text-lg font-medium">Number of Questions: <span class="font-normal">{{ assignment.num_questions }}</span></p>
+            </div>
+
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Attempt Details</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Question</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Option A</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Option B</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Option C</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Option D</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trainee's Answer</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Correct Answer</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for question in questions %}
+                        <tr>
+                            <td class="px-4 py-2">{{ question.question_text }}</td>
+                            <td class="px-4 py-2">{{ question.option_a }}</td>
+                            <td class="px-4 py-2">{{ question.option_b }}</td>
+                            <td class="px-4 py-2">{{ question.option_c }}</td>
+                            <td class="px-4 py-2">{{ question.option_d }}</td>
+                            <td class="px-4 py-2">
+                                <span class="{% if question.response == question.correct_answer %}text-green-600 font-semibold{% else %}text-red-600 font-semibold{% endif %}">
+                                    {{ question.response }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2">{{ question.correct_answer }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
